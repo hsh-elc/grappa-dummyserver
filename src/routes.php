@@ -19,15 +19,16 @@ function logRequestIfDebug(Request $request, \Slim\Container $container) {
     }
 }
 
-function checkAuthorization(Request $request, Response $response, array $args) {
-    $returnUnauthorized = false;
+function isAuthorized(Request $request, Response $response, array $args) {
+    $isAuthorized = true;
 
     //TODO: CHECK IF AUTHORIZATION IS PRESENT
 
-    if ($returnUnauthorized) {
-        $response = $response->withStatus(\Slim\Http\StatusCode::HTTP_UNAUTHORIZED);
-    }
-    return $response;
+    return $isAuthorized;
+}
+
+function createResponseForUnauthorizedAccess(Response $response) {
+    return $response->withStatus(\Slim\Http\StatusCode::HTTP_UNAUTHORIZED);
 }
 
 return function (App $app) {
@@ -37,9 +38,11 @@ return function (App $app) {
 
     $app->get('/graders', function (Request $request, Response $response, array $args) use ($container, $logger) {
 
-        $response = checkAuthorization($request, $response, $args);
-
         logRequestIfDebug($request, $container);
+
+        if (!isAuthorized($request, $response, $args)) {
+            return createResponseForUnauthorizedAccess($response);
+        }
 
         $graders = array("graders" => array(
                 "Dummy Grader 1" => "id_dummygrader_1"
@@ -52,7 +55,9 @@ return function (App $app) {
 
     $app->map(['HEAD'], '/tasks/[{taskuuid}]', function (Request $request, Response $response, array $args) use ($container, $logger) {
 
-        $response = checkAuthorization($request, $response, $args);
+        if (!isAuthorized($request, $response, $args)) {
+            return createResponseForUnauthorizedAccess($response);
+        }
 
         $doesTaskExist = false;
 
