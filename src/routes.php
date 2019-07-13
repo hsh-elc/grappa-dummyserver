@@ -55,6 +55,8 @@ return function (App $app) {
 
     $app->map(['HEAD'], '/tasks/[{taskuuid}]', function (Request $request, Response $response, array $args) use ($container, $logger) {
 
+        logRequestIfDebug($request, $container);
+
         if (!isAuthorized($request, $response, $args)) {
             return createResponseForUnauthorizedAccess($response);
         }
