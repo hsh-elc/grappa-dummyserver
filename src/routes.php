@@ -86,4 +86,34 @@ return function (App $app) {
 
         return $response;
     });
+
+    $app->post('/{graderid}/gradeprocesses', function (Request $request, Response $response, array $args) use ($container, $logger) {
+
+        logRequestIfDebug($request, $container);
+
+        if (!isAuthorized($request, $response, $args)) {
+            return createResponseForUnauthorizedAccess($response);
+        }
+
+        $queryParams = $request->getQueryParams();
+        $requestFiles = $request->getUploadedFiles();
+
+        if (!isset($requestFiles['submission'])) {
+            return $response->withStatus(\Slim\Http\StatusCode::HTTP_BAD_REQUEST);
+        }
+        if (!isset($queryParams['graderid'])) {
+            return $response->withStatus(\Slim\Http\StatusCode::HTTP_NOT_FOUND);
+        }
+
+        /*
+          //Copy submission file to dummyserver in case it should be inspected
+          //Needs write permissions for webserver on folder uploaded_files in dummy-server root directory
+          //Commented out by default to prevent hard disk spam
+          $submissionfile = $requestFiles['submission'];
+          $time = microtime();
+          $submissionfile->moveTo("../uploaded_files/submission_{$time}_.zip");
+         */
+
+        return $response->withStatus(\Slim\Http\StatusCode::HTTP_CREATED);
+    });
 };
