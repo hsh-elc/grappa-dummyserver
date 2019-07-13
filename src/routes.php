@@ -7,15 +7,32 @@ use Slim\Http\Response;
 define("DEBUG", false);
 
 function logRequestIfDebug(Request $request, \Slim\Container $container) {
+    /**
+     * LOG FILE is located in <dummyserver>/logs/app.log
+     */
     if (DEBUG) {
-        $container->get('logger')->info("##########################");
-        $container->get('logger')->info($request->getMethod());
-        $container->get('logger')->info($request->getUri());
-        $container->get('logger')->info("Request Params:");
-        foreach ($request->getQueryParams() as $key => $value) {
-            $container->get('logger')->info("\t$key = $value");
+        $container->get('logger')->info($request->getMethod() . " " . $request->getUri());
+        $queryParams = $request->getQueryParams();
+        if (!empty($queryParams)) {
+            $container->get('logger')->info("\t********** Query Params **********");
+            foreach ($queryParams as $key => $value) {
+                $container->get('logger')->info("\t$key = $value");
+            }
         }
-        $container->get('logger')->info("##########################");
+        $postParams = $request->getParsedBody();
+        if (!empty($postParams)) {
+            $container->get('logger')->info("\t********** POST Params **********");
+            foreach ($postParams as $key => $value) {
+                $container->get('logger')->info("\t$key = $value");
+            }
+        }
+        $files = $request->getUploadedFiles();
+        if (!empty($files)) {
+            $container->get('logger')->info("\t********** Uploaded files **********");
+            foreach ($files as $key => $value) {
+                $container->get('logger')->info("\t$key: {$value->getClientFilename()} ({$value->getClientMediaType()})");
+            }
+        }
     }
 }
 
