@@ -6,7 +6,7 @@ use Slim\Http\Response;
 
 define("DEBUG", false);
 
-function logRequestIfDebug(Request $request, \Slim\Container $container) {
+function logRequestIfDebug(Request $request, \Slim\Container $container, array $args) {
     /**
      * LOG FILE is located in <dummyserver>/logs/app.log
      */
@@ -23,6 +23,12 @@ function logRequestIfDebug(Request $request, \Slim\Container $container) {
         if (!empty($postParams)) {
             $container->get('logger')->info("\t********** POST Params **********");
             foreach ($postParams as $key => $value) {
+                $container->get('logger')->info("\t$key = $value");
+            }
+        }
+        if (!empty($args)) {
+            $container->get('logger')->info("\t********** Path Params **********");
+            foreach ($args as $key => $value) {
                 $container->get('logger')->info("\t$key = $value");
             }
         }
@@ -53,9 +59,9 @@ return function (App $app) {
     $logger = $container->get('logger');
 
 
-    $app->get('/graders', function (Request $request, Response $response, array $args) use ($container, $logger) {
+    $app->get('/graders', function (Request $request, Response $response, array $args) use ($container) {
 
-        logRequestIfDebug($request, $container);
+        logRequestIfDebug($request, $container, $args);
 
         if (!isAuthorized($request, $response, $args)) {
             return createResponseForUnauthorizedAccess($response);
@@ -70,9 +76,9 @@ return function (App $app) {
         return $response->write(json_encode($graders));
     });
 
-    $app->map(['HEAD'], '/tasks/{taskuuid}', function (Request $request, Response $response, array $args) use ($container, $logger) {
+    $app->map(['HEAD'], '/tasks/{taskuuid}', function (Request $request, Response $response, array $args) use ($container) {
 
-        logRequestIfDebug($request, $container);
+        logRequestIfDebug($request, $container, $args);
 
         if (!isAuthorized($request, $response, $args)) {
             return createResponseForUnauthorizedAccess($response);
@@ -87,9 +93,9 @@ return function (App $app) {
         return $response;
     });
 
-    $app->post('/{graderid}/gradeprocesses', function (Request $request, Response $response, array $args) use ($container, $logger) {
+    $app->post('/{graderid}/gradeprocesses', function (Request $request, Response $response, array $args) use ($container) {
 
-        logRequestIfDebug($request, $container);
+        logRequestIfDebug($request, $container, $args);
 
         if (!isAuthorized($request, $response, $args)) {
             return createResponseForUnauthorizedAccess($response);
