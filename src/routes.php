@@ -70,7 +70,7 @@ return function (App $app) {
         return $response->write(json_encode($graders));
     });
 
-    $app->map(['HEAD'], '/tasks/[{taskuuid}]', function (Request $request, Response $response, array $args) use ($container, $logger) {
+    $app->map(['HEAD'], '/tasks/{taskuuid}', function (Request $request, Response $response, array $args) use ($container, $logger) {
 
         logRequestIfDebug($request, $container);
 
