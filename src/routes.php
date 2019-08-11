@@ -76,6 +76,37 @@ return function (App $app) {
         return $response->write(json_encode($graders));
     });
 
+    $app->get('/{graderid}/gradeprocesses/{gradeprocessid}', function (Request $request, Response $response, array $args) use ($container) {
+
+        logRequestIfDebug($request, $container, $args);
+
+        if (!isAuthorized($request, $response, $args)) {
+            return createResponseForUnauthorizedAccess($response);
+        }
+
+        $isGradingFinished = true;
+        if ($isGradingFinished) {
+
+            $file = "../files_to_serve/response_right.zip";
+            $fh = fopen($file, 'rb');
+            $stream = new \Slim\Http\Stream($fh);
+
+            return $response->withHeader('Content-Type', 'application/force-download')
+                            ->withHeader('Content-Type', 'application/octet-stream')
+                            ->withHeader('Content-Type', 'application/download')
+                            ->withHeader('Content-Description', 'File Transfer')
+                            ->withHeader('Content-Transfer-Encoding', 'binary')
+                            ->withHeader('Content-Disposition', 'attachment; filename="' . basename($file) . '"')
+                            ->withHeader('Expires', '0')
+                            ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                            ->withHeader('Pragma', 'public')
+                            ->withBody($stream)
+                            ->withStatus(\Slim\Http\StatusCode::HTTP_OK);
+        } else {
+            return $response->withStatus(\Slim\Http\StatusCode::HTTP_ACCEPTED);
+        }
+    });
+
     $app->map(['HEAD'], '/tasks/{taskuuid}', function (Request $request, Response $response, array $args) use ($container) {
 
         logRequestIfDebug($request, $container, $args);
@@ -119,6 +150,7 @@ return function (App $app) {
           $time = microtime();
           $submissionfile->moveTo("../uploaded_files/submission_{$time}_.zip");
          */
+        $response = $response->withJson(["gradeProcessId" => uniqid()]);
 
         return $response->withStatus(\Slim\Http\StatusCode::HTTP_CREATED);
     });
