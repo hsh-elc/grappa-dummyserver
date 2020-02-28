@@ -87,7 +87,9 @@ return function (App $app) {
         $isGradingFinished = true;
         if ($isGradingFinished) {
 
-            $file = "../files_to_serve/response_right.zip";
+
+            $file = '../files_to_serve/response_separate_full_score.zip';
+
             $fh = fopen($file, 'rb');
             $stream = new \Slim\Http\Stream($fh);
 
@@ -142,14 +144,14 @@ return function (App $app) {
             return $response->withStatus(\Slim\Http\StatusCode::HTTP_NOT_FOUND);
         }
 
-        /*
-          //Copy submission file to dummyserver in case it should be inspected
-          //Needs write permissions for webserver on folder uploaded_files in dummy-server root directory
-          //Commented out by default to prevent hard disk spam
-          $submissionfile = $requestFiles['submission'];
+
+        //Copy submission file to dummyserver in case it should be inspected
+        //Needs write permissions for webserver on folder uploaded_files in dummy-server root directory
+        //Commented out by default to prevent hard disk spam
+        /* $submissionfile = $requestFiles['submission'];
           $time = microtime();
-          $submissionfile->moveTo("../uploaded_files/submission_{$time}_.zip");
-         */
+          $submissionfile->moveTo("../uploaded_files/submission_{$time}_.zip"); */
+
         $response = $response->withJson(["gradeProcessId" => uniqid()]);
 
         return $response->withStatus(\Slim\Http\StatusCode::HTTP_CREATED);
